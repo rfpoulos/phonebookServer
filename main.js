@@ -18,9 +18,7 @@ let saveContacts = function(contacts) {
 
 let findContact = function(id, contacts) {
     id = parseInt(id, 10);
-    return contacts.find(function(contact) {
-        return contact.id === id;
-    });
+    return contacts.find(contact => contact.id === id);
 };
 
 let deleteContact = function(contactToDelete, contacts) {
