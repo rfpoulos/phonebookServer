@@ -9,12 +9,12 @@ const rl = readline.createInterface({
     output: process.stdout
   });
 
-const readlineAsPromise = promisify(fs.readFile);
-const writeFileAsPromise = promisify(fs.writeFile);
+let readlineAsPromise = promisify(fs.readFile);
+let writeFileAsPromise = promisify(fs.writeFile);
 
 let saveContacts = function(contacts) {
     writeFileAsPromise('phoneBook.txt', JSON.stringify(contacts));
-}
+};
 
 let findContact = function(id, contacts) {
     id = parseInt(id, 10);
@@ -28,13 +28,13 @@ let deleteContact = function(contactToDelete, contacts) {
     saveContacts(newContacts);
 };
 
-let readBody = function(request, callback) {
-    let body = '';
+let readIncoming = function(request, callback) {
+    let incoming = '';
     request.on('data', function(chunk) {
-        body += chunk.toString();
+        incoming += chunk.toString();
     });
     request.on('end', function() {
-        callback(body);
+        callback(incoming);
     });
 };
 
@@ -50,8 +50,8 @@ let getContacts = function(request, response, contacts) {
 };
 
 let postContacts = function(request, response, contacts) {
-    readBody(request, function(body) {
-        let contact = JSON.parse(body);
+    readIncoming(request, function(incoming) {
+        let contact = JSON.parse(incoming);
         let lastId = contacts[contacts.length - 1]['id'];
         contact.id = ++lastId;
         console.log(contact);
@@ -78,8 +78,8 @@ let getContact = function(request, response, contacts) {
 let putContact = function(request, response, contacts) {
     let id = getSuffix(request.url, '/contacts/');
     let contact = findContact(id, contacts);
-    readBody(request, function(body) {
-        let newParams = JSON.parse(body);
+    readIncoming(request, function(incoming) {
+        let newParams = JSON.parse(incoming);
         Object.assign(contact, newParams);
         saveContacts(contacts);        
         response.end('Updated contact!');
